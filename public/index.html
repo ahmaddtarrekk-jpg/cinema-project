@@ -1,57 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cinema Booking</title>
+  <title>Cinema Pro Booking</title>
   <link rel="stylesheet" href="styles.css" />
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
-  <div id="login-screen" class="page active">
-    <div class="bg-blobs">
-      <span></span><span></span><span></span>
-    </div>
-    <div class="login-card">
-      <h1>🎬 Cinema Booking</h1>
-      <p>Login to continue your movie night.</p>
-      <input id="email" type="email" placeholder="Email" value="demo@cinema.com" />
-      <input id="password" type="password" placeholder="Password" value="123456" />
-      <button id="login-btn">Login</button>
-      <button id="forgot-btn" class="link-btn">Forgot Password?</button>
-      <p id="login-msg"></p>
-    </div>
-  </div>
-
-  <div id="dashboard" class="page">
-    <header>
-      <h2 id="welcome"></h2>
-      <button id="logout">Logout</button>
-    </header>
-
-    <section class="panel">
-      <h3>AI Movie Assistant</h3>
-      <div class="ai-row">
-        <input id="mood" placeholder="I feel sad / excited / romantic..." />
-        <input id="genre" placeholder="Genre (Drama, Romance, Action...)" />
-        <button id="ask-ai">Suggest</button>
-      </div>
-      <div id="ai-results" class="cards"></div>
-    </section>
-
-    <section class="panel">
-      <h3>Pick seats</h3>
-      <div id="selection-info"></div>
-      <div id="seat-grid" class="seat-grid"></div>
-      <div id="payment-box" class="payment-box hidden">
-        <h4>Payment</h4>
-        <input id="card-last4" maxlength="4" placeholder="Card last 4 digits" />
-        <input id="payment-code" placeholder="Payment code (PAYMENT-OK)" />
-        <button id="confirm-payment">Confirm & Pay</button>
-      </div>
-      <p id="seat-msg"></p>
-    </section>
-  </div>
-
-  <script src="app.js"></script>
+  <div id="root"></div>
+  <script type="text/babel" src="app.jsx"></script>
 </body>
 </html>
