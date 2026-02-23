@@ -1,0 +1,10 @@
+{
+  "name": "cinema-project",
+  "version": "1.0.0",
+  "description": "Realtime cinema booking with AI recommendations",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  }
+}
