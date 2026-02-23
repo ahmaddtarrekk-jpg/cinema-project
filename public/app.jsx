@@ -41,7 +41,12 @@ function App() {
   const [otp, setOtp] = useState('');
   const [demoOtp, setDemoOtp] = useState('');
 
-  const allMovies = useMemo(() => catalog.flatMap((c) => c.movies.map((m) => ({ ...m, cinemaName: c.name, city: c.city }))), [catalog]);
+  const allMovies = useMemo(
+    () => catalog.flatMap((c) => c.movies.map((m) => ({ ...m, cinemaName: c.name, city: c.city, heroImage: c.heroImage }))),
+    [catalog]
+  );
+
+  const heroBg = selected?.option?.heroImage || catalog[0]?.heroImage || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1600&q=80';
 
   useEffect(() => {
     if (!token) return;
@@ -81,6 +86,7 @@ function App() {
   };
 
   const askChat = async () => {
+    if (!chatInput.trim()) return;
     try {
       const data = await api('/api/chat', 'POST', token, { message: chatInput });
       setChatHistory((prev) => [...prev, { role: 'user', text: chatInput }, { role: 'bot', text: data.reply }]);
@@ -157,11 +163,13 @@ function App() {
 
   if (!token) {
     return (
-      <div className="login-page">
-        <div className="blob b1"></div><div className="blob b2"></div><div className="blob b3"></div>
+      <div className="login-page" style={{ backgroundImage: `linear-gradient(120deg, rgba(9,11,25,.7), rgba(18,14,34,.75)), url('https://images.unsplash.com/photo-1585951237318-9ea5e175b891?auto=format&fit=crop&w=1900&q=80')` }}>
+        <div className="aurora a1"></div>
+        <div className="aurora a2"></div>
+        <div className="aurora a3"></div>
         <div className="login-card">
-          <h1>🎬 Cinema Pro</h1>
-          <p>احجز فيلمك بشكل احترافي وسريع</p>
+          <h1>🎬 CineBook Pro</h1>
+          <p>منصة حجز سينما بتصميم احترافي + شات بوت ذكي</p>
           <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
           <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Password" />
           <button onClick={login}>Login</button>
@@ -173,47 +181,74 @@ function App() {
   }
 
   return (
-    <div className="dashboard">
-      <header>
-        <h2>Welcome, {name}</h2>
-        <button onClick={() => window.location.reload()}>Logout</button>
-      </header>
+    <div className="app-shell">
+      <section className="hero" style={{ backgroundImage: `linear-gradient(180deg, rgba(5,6,14,.2), rgba(5,6,14,.95)), url('${heroBg}')` }}>
+        <header className="topbar">
+          <h2>CineBook</h2>
+          <div className="user-pill">Welcome, {name}</div>
+          <button onClick={() => window.location.reload()}>Logout</button>
+        </header>
+        <div className="hero-copy">
+          <h1>اختار سينيمتك</h1>
+          <p>استمتع بأحدث الأفلام والمواعيد والأسعار في أقرب سينما ليك</p>
+        </div>
+      </section>
 
-      <section className="panel">
-        <h3>🤖 AI Cinema Chatbot</h3>
-        <p>جرّب: "اعرض كل الافلام" أو "انا زهقان" أو "عايز فيلم دراما"</p>
-        <div className="row">
-          <input value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="اكتب مزاجك او نوع الفيلم..." />
-          <button onClick={askChat}>اسأل البوت</button>
-        </div>
-        <div className="chat-box">
-          {chatHistory.map((msg, i) => <div key={i} className={`chat ${msg.role}`}>{msg.text}</div>)}
-        </div>
-        <div className="cards">
-          {suggestions.map((option, i) => (
-            <div key={i} className="card">
-              <h4>{option.movie.title}</h4>
-              <p>{option.movie.genre} • ⭐ {option.movie.rating}</p>
-              <p>{option.cinemaName} - {option.city}</p>
-              <p>Times: {option.movie.times.join(' | ')}</p>
-              <p className="price">Price: {option.movie.price} EGP</p>
-              <button onClick={() => pickOption(option)}>اختار الفيلم</button>
+      <main className="content-grid">
+        <section className="chat-panel">
+          <div className="chat-head">
+            <h3>🤖 مساعدك السينمائي</h3>
+            <p>قولي نوع الفيلم أو مودك وأنا أرشحلك الأفضل</p>
+          </div>
+          <div className="chat-box">
+            {chatHistory.length === 0 && <div className="chat bot">أهلًا بيك 👋 قولي مودك أو قول "اعرض كل الافلام".</div>}
+            {chatHistory.map((msg, i) => <div key={i} className={`chat ${msg.role}`}>{msg.text}</div>)}
+          </div>
+          <div className="chat-input-row">
+            <input value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="اكتب رسالتك..." />
+            <button onClick={askChat}>إرسال</button>
+          </div>
+        </section>
+
+        <section className="movies-panel">
+          <h3>ترشيحات البوت</h3>
+          <div className="cards">
+            {suggestions.map((option, i) => (
+              <article key={i} className="card">
+                <img src={option.movie.poster} alt={option.movie.title} />
+                <div className="card-body">
+                  <h4>{option.movie.title}</h4>
+                  <p>{option.movie.genre} • ⭐ {option.movie.rating}</p>
+                  <p>{option.cinemaName} - {option.city}</p>
+                  <p className="times">{option.movie.times.join(' • ')}</p>
+                  <p className="price">{option.movie.price} EGP</p>
+                  <button onClick={() => pickOption(option)}>احجز الآن</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      <section className="catalog-panel">
+        <h3>كل الأفلام المتاحة ({allMovies.length})</h3>
+        <div className="mini-grid">
+          {allMovies.map((m) => (
+            <div key={`${m.id}-${m.cinemaName}`} className="mini-card">
+              <img src={m.poster} alt={m.title} />
+              <div>
+                <strong>{m.title}</strong>
+                <p>{m.genre} - {m.price} EGP</p>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="panel">
-        <h3>🎞️ كل الأفلام المتاحة ({allMovies.length})</h3>
-        <div className="mini-grid">
-          {allMovies.map((m) => <span key={`${m.id}-${m.cinemaName}`}>{m.title} ({m.genre}) - {m.price} EGP</span>)}
-        </div>
-      </section>
-
       {selected && (
-        <section className="panel">
-          <h3>💺 Seat Selection</h3>
-          <p>{selected.movie.title} - {selected.time} - السعر {selected.movie.price} EGP</p>
+        <section className="panel seat-panel">
+          <h3>💺 Seat Selection - {selected.movie.title}</h3>
+          <p>{selected.time} • السعر: {selected.movie.price} EGP</p>
           <div className="seat-grid">
             {Object.entries(seats).map(([seatId, seat]) => (
               <button
@@ -241,7 +276,6 @@ function App() {
                 <input value={cvv} onChange={(e) => setCvv(e.target.value)} placeholder="CVV" />
               </div>
               <button onClick={createPaymentIntent}>Create Payment Intent</button>
-
               {paymentIntentId && (
                 <>
                   <p className="hint">Demo OTP: {demoOtp}</p>

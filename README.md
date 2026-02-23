@@ -3,7 +3,8 @@
 A full-stack cinema booking project with a React frontend and a Node.js backend.
 
 ## Features
-- Animated professional login page.
+- Cinematic professional UI with animated login background.
+- Real cinema-style hero sections and movie cards with rich images.
 - AI-like chatbot that understands requests like:
   - "اعرض كل الافلام"
   - "انا زهقان"
