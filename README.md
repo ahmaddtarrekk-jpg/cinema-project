@@ -1,19 +1,18 @@
 # Cinema Pro Booking (React + Node)
 
-A full-stack cinema booking project with a React frontend and a Node.js backend.
+A full-stack cinema booking platform with a cinematic UI, floating chatbot, realtime seat updates, and an admin dashboard.
 
 ## Features
-- Cinematic professional UI with animated login background.
-- Real cinema-style hero sections and movie cards with rich images.
-- AI-like chatbot that understands requests like:
-  - "اعرض كل الافلام"
-  - "انا زهقان"
-  - "عايز فيلم دراما"
-- Large movie catalog across multiple cinemas.
-- Movie details with genre, rating, showtimes, and ticket price.
-- Real-time seat updates for concurrent users (without refresh) using SSE.
-- Seat lock/hold to prevent double booking.
-- Payment flow with card validation + payment intent + OTP confirmation.
+- Animated cinematic login and polished movie-first design.
+- Floating chatbot icon (bottom-left) with conversation style replies.
+- Rich cinema/movie cards with posters, showtimes, ratings, and prices.
+- Real-time seat synchronization across users (SSE).
+- Seat hold + payment intent + OTP confirmation flow.
+- **Admin Dashboard**:
+  - Add new movies
+  - Quick update existing movies
+  - View bookings list
+  - Revenue analytics + top movie insights
 
 ## Run
 ```bash
@@ -22,13 +21,10 @@ node server.js
 Open: `http://localhost:3000`
 
 ## Demo credentials
+### User
 - Email: `demo@cinema.com`
 - Password: `123456`
 
-## Notes on payment
-This is a **sandbox/demo payment flow** that includes realistic validations:
-- Card number (Luhn check)
-- Card holder name
-- Expiry month/year
-- CVV
-- OTP confirmation step
+### Admin
+- Email: `admin@cinema.com`
+- Password: `admin123`
