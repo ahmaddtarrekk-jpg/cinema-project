@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { URL } = require('url');
+const { spawnSync } = require('child_process');
 
 const PORT = process.env.PORT || 3000;
 const SECRET = 'cinema-super-secret-key';
@@ -165,16 +166,6 @@ function luhnValid(cardNumber) {
   return sum % 10 === 0;
 }
 
-function parseIntent(text) {
-  const value = text.toLowerCase();
-  if (/all movies|كل الافلام|اعرض كل/.test(value)) return { type: 'list_all' };
-  if (/زهقان|bored/.test(value)) return { type: 'bored' };
-  if (/drama|دراما/.test(value)) return { type: 'genre', genre: 'Drama' };
-  if (/romance|رومانسي/.test(value)) return { type: 'genre', genre: 'Romance' };
-  if (/action|اكشن/.test(value)) return { type: 'genre', genre: 'Action' };
-  if (/comedy|كوميدي/.test(value)) return { type: 'genre', genre: 'Comedy' };
-  return { type: 'mood', keyword: value.trim() };
-}
 
 function buildSuggestions(filterFn) {
   return flattenMovies().filter(({ movie }) => filterFn(movie)).map(({ cinema, movie }) => ({
@@ -186,7 +177,6 @@ function buildSuggestions(filterFn) {
   }));
 }
 
-function random(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 function adminOnly(user, res) {
   if (user.role !== 'admin') { sendJson(res, 403, { message: 'Admin only' }); return false; }
@@ -233,19 +223,26 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'POST' && reqUrl.pathname === '/api/chat') {
     const { message = '' } = await parseBody(req);
-    const intent = parseIntent(message);
-    let suggestions = [];
-    if (intent.type === 'list_all') suggestions = buildSuggestions(() => true);
-    else if (intent.type === 'bored') suggestions = buildSuggestions((movie) => ['Comedy', 'Action', 'Sci-Fi'].includes(movie.genre));
-    else if (intent.type === 'genre') suggestions = buildSuggestions((movie) => movie.genre === intent.genre);
-    else suggestions = buildSuggestions((movie) => movie.moods.some((m) => intent.keyword.includes(m)) || movie.genre.toLowerCase().includes(intent.keyword));
-    if (!suggestions.length) suggestions = buildSuggestions(() => true);
+    const suggestions = buildSuggestions(() => true);
 
-    const top = suggestions.sort((a, b) => b.movie.rating - a.movie.rating).slice(0, 12);
-    const openers = ['حلو جدًا 👌', 'عاش، اختيار ممتاز 🎬', 'تمام يا فندم ✨', 'جاهز أرشحلك الأفضل 🔥'];
-    const closers = ['تحب أكتر حاجات اقتصادية ولا أعلى تقييم؟', 'لو حابب أفلتر حسب السعر أقدر.', 'ممكن كمان أجيبلك أفلام في سينما معينة.'];
-    const reply = `${random(openers)} لقيت ${top.length} ترشيحات مناسبة. أعلى فيلم حاليًا ${top[0].movie.title} بتقييم ${top[0].movie.rating}. ${random(closers)}`;
-    return sendJson(res, 200, { reply, suggestions: top });
+    const py = spawnSync('python3', [path.join(__dirname, 'chatbot.py')], {
+      input: JSON.stringify({ message, suggestions }),
+      encoding: 'utf-8'
+    });
+
+    if (py.status !== 0) {
+      return sendJson(res, 500, { message: 'Chatbot service failed', details: py.stderr || 'Unknown error' });
+    }
+
+    try {
+      const parsed = JSON.parse(py.stdout || '{}');
+      return sendJson(res, 200, {
+        reply: parsed.reply || 'جاهز أساعدك باختيارات أفلام مناسبة.',
+        suggestions: (parsed.suggestions || suggestions).slice(0, 12)
+      });
+    } catch {
+      return sendJson(res, 500, { message: 'Chatbot response parse error' });
+    }
   }
 
   if (req.method === 'GET' && reqUrl.pathname === '/api/me') return sendJson(res, 200, { user });

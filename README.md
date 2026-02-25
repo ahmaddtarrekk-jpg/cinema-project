@@ -5,6 +5,7 @@ A full-stack cinema booking platform with a cinematic UI, floating chatbot, real
 ## Features
 - Animated cinematic login and polished movie-first design.
 - Floating chatbot icon (bottom-left) with conversation style replies.
+- Python chatbot engine (`chatbot.py`) processes chat intent/reply generation.
 - Rich cinema/movie cards with posters, showtimes, ratings, and prices.
 - Real-time seat synchronization across users (SSE).
 - Seat hold + payment intent + OTP confirmation flow.
